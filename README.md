@@ -57,6 +57,62 @@ Open app/assets/javascripts/application.js above //= require_tree .:
 ```
 Refresh the page to see the style button.
 
+## Add Devise and Active Admin
+Add Devise gem to the `Gemfile`:
+```
+# For user authentication
+gem 'devise', '~> 4.3'
+```
+Update the bundle and install the gems:
+```
+docker-compose run web bundle update
+```
+Build the Docker image (required anytime the `Gemfile` is modified):
+```
+docker-compose build
+```
+Run devise generator (read the instruction output):
+```
+docker-compose run web rails generate devise:install
+```
+Add the following to `config/environments/development.rb`:
+```
+# define default url options for mailer
+config.action_mailer.default_url_options = { host: ENV['IP'], port: ENV['PORT'] }
+```
+Add Activeadmin gem to the Gemfile:
+```
+# For managing admins
+gem 'activeadmin', '~> 1.1'
+```
+Update the bundle and install the gems:
+```
+docker-compose run web bundle update
+```
+Build the Docker image (required anytime the `Gemfile` is modified):
+```
+docker-compose build
+```
+Run Activeadmin generator:
+```
+docker-compose run web rails g active_admin:install
+```
+We ALWAYS want to change the default admin credentials. Open `db/seeds.rb` and update the admin credentials.
+```
+if Rails.env.development?
+    AdminUser.create!(email: 'admin@example.com', password: 'admin1', password_confirmation: 'admin1')
+end
+```
+Run database migrations (migrates `db/migrate/*``):
+```
+docker-compose run web rails db:migrate
+```
+Reset the databases:
+```
+docker-compose run web rails db:reset
+```
+Browse to <URL>/admin to view the admin login page.
+
 
 ## Authors
 
