@@ -103,7 +103,7 @@ if Rails.env.development?
     AdminUser.create!(email: 'admin@example.com', password: 'admin1', password_confirmation: 'admin1')
 end
 ```
-Run database migrations (migrates `db/migrate/*``):
+Run database migrations (migrates `db/migrate/*`):
 ```
 docker-compose run web rails db:migrate
 ```
@@ -112,6 +112,62 @@ Reset the databases:
 docker-compose run web rails db:reset
 ```
 Browse to <URL>/admin to view the admin login page.
+
+## Add Users and Events
+Add users using Devise generator:
+```
+docker-compose run web rails generate devise User
+```
+Update the migration file `<timestamp>_devise_create_users.rb` with additional columns:
+```
+create_table :users do |t|
+  ## Adding our own additional columns to the User table
+  t.string :username,           null: false
+  t.string :name
+  t.string :facebook
+  t.text :description
+  t.string :role
+
+  ## Database authenticatable
+  t.string :email,              null: false, default: ""
+  t.string :encrypted_password, null: false, default: ""
+  ...
+```
+Generate an Event scaffold:
+```
+docker-compose run web rails g scaffold Event name:string description:text location:string member_price:decimal non_member_price:decimal start_datetime:datetime end_datetime:datetime
+```
+Update the root in `config/routes.rb`:
+```
+root 'events#index'
+```
+Update the `db/seeds.rb` with a default user:
+```
+if Rails.env.development?
+    AdminUser.create!(email: 'admin@example.com', password: 'admin1', password_confirmation: 'admin1')
+
+    engsoc = User.create(username: 'EngSoc', name: 'Engineering Society', email: 'engsoc@mail.com', password: 'password', password_confirmation: 'password1', role: 'organisation', description: 'Engineering Society at the University of Sydney')
+
+    event1 = Event.create(name: 'BBQ',
+    	description: 'Let\'s celebrate the beginning of the semester with some free BBQ!',
+    	member_price: 0.00,
+    	non_member_price: 0.00,
+    	location: 'Engineering Laws',
+    	start_datetime: DateTime.new(2015,9,5,12,0),
+    	end_datetime: DateTime.new(2015,9,5,13,0))
+end
+```
+Run database migrations:
+```
+docker-compose run web rails db:migrate
+```
+Reset the databases:
+```
+docker-compose run web rails db:reset
+```
+
+
+
 
 
 ## Authors

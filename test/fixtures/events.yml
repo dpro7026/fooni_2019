@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  description: MyText
+  location: MyString
+  member_price: 9.99
+  non_member_price: 9.99
+  start_datetime: 2019-01-27 00:43:29
+  end_datetime: 2019-01-27 00:43:29
+
+two:
+  name: MyString
+  description: MyText
+  location: MyString
+  member_price: 9.99
+  non_member_price: 9.99
+  start_datetime: 2019-01-27 00:43:29
+  end_datetime: 2019-01-27 00:43:29
