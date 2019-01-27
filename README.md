@@ -146,9 +146,9 @@ Update the `db/seeds.rb` with a default user:
 if Rails.env.development?
     AdminUser.create!(email: 'admin@example.com', password: 'admin1', password_confirmation: 'admin1')
 
-    engsoc = User.create(username: 'EngSoc', name: 'Engineering Society', email: 'engsoc@mail.com', password: 'password', password_confirmation: 'password1', role: 'organisation', description: 'Engineering Society at the University of Sydney')
+    engsoc = User.create!(username: 'EngSoc', name: 'Engineering Society', email: 'engsoc@mail.com', password: 'password1', password_confirmation: 'password1', role: 'organisation', description: 'Engineering Society at the University of Sydney')
 
-    event1 = Event.create(name: 'BBQ',
+    event1 = Event.create!(name: 'BBQ',
     	description: 'Let\'s celebrate the beginning of the semester with some free BBQ!',
     	member_price: 0.00,
     	non_member_price: 0.00,
@@ -164,6 +164,44 @@ docker-compose run web rails db:migrate
 Reset the databases:
 ```
 docker-compose run web rails db:reset
+```
+
+## Add Associations
+We update the Event to belong to a User by deleting and creating a new scaffold.<br/>
+Destroy the existing scaffold:
+```
+docker-compose run web rails d scaffold Event
+```
+Drop the databases so we don't have any inconsistencies:
+```
+docker-compose run web rails db:drop db:create
+```
+Generate a new Event scaffold referencing the belongs to User:
+```
+docker-compose run web rails g scaffold Event name:string description:text location:string member_price:decimal non_member_price:decimal start_datetime:datetime end_datetime:datetime user:references
+```
+Run the migrations:
+```
+docker-compose run web rails db:migrate
+```
+Update the event to have a user in `db/seeds.rb`:
+```
+event1 = Event.create!(name: 'BBQ',
+  description: 'Let\'s celebrate the beginning of the semester with some free BBQ!',
+  member_price: 0.00,
+  non_member_price: 0.00,
+  location: 'Engineering Laws',
+  start_datetime: DateTime.new(2015,9,5,12,0),
+  end_datetime: DateTime.new(2015,9,5,13,0),
+  user: engsoc)
+```
+Reset the database with the new seeds:
+```
+docker-compose run web rails db:reset
+```
+Add an association in `app/models/user.rb` to destroy the Event if the User is destroyed:
+```
+has_many :events, dependent: :destroy
 ```
 
 

@@ -8,6 +8,7 @@ class CreateEvents < ActiveRecord::Migration[5.1]
       t.decimal :non_member_price
       t.datetime :start_datetime
       t.datetime :end_datetime
+      t.references :user, foreign_key: true
 
       t.timestamps
     end

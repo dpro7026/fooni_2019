@@ -6,8 +6,9 @@ one:
   location: MyString
   member_price: 9.99
   non_member_price: 9.99
-  start_datetime: 2019-01-27 00:43:29
-  end_datetime: 2019-01-27 00:43:29
+  start_datetime: 2019-01-27 01:19:59
+  end_datetime: 2019-01-27 01:19:59
+  user: one
 
 two:
   name: MyString
@@ -15,5 +16,6 @@ two:
   location: MyString
   member_price: 9.99
   non_member_price: 9.99
-  start_datetime: 2019-01-27 00:43:29
-  end_datetime: 2019-01-27 00:43:29
+  start_datetime: 2019-01-27 01:19:59
+  end_datetime: 2019-01-27 01:19:59
+  user: two

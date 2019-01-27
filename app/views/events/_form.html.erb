@@ -46,6 +46,11 @@
     <%= form.datetime_select :end_datetime, id: :event_end_datetime %>
   </div>
 
+  <div class="field">
+    <%= form.label :user_id %>
+    <%= form.text_field :user_id, id: :event_user_id %>
+  </div>
+
   <div class="actions">
     <%= form.submit %>
   </div>
