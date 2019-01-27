@@ -42,12 +42,20 @@ gem 'devise', '~> 4.3'
 # For managing admins
 gem 'activeadmin', '~> 1.1'
 
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   # Adds support for Capybara system testing and selenium driver
   gem 'capybara', '~> 2.13'
   gem 'selenium-webdriver'
+
+  # Testing framework
+  gem 'rspec-rails'
+  # Use factories to create sample instances of objects
+  gem 'factory_bot_rails'
+  # Use faker to generate sample data
+  gem 'faker'
 end
 
 group :development do

@@ -146,15 +146,25 @@ Update the `db/seeds.rb` with a default user:
 if Rails.env.development?
     AdminUser.create!(email: 'admin@example.com', password: 'admin1', password_confirmation: 'admin1')
 
-    engsoc = User.create!(username: 'EngSoc', name: 'Engineering Society', email: 'engsoc@mail.com', password: 'password1', password_confirmation: 'password1', role: 'organisation', description: 'Engineering Society at the University of Sydney')
+    engsoc = User.create!(
+      username: 'EngSoc',
+      name: 'Engineering Society',
+      email: 'engsoc@mail.com',
+      password: 'password1',
+      password_confirmation: 'password1',
+      role: 'organisation',
+      description: 'Engineering Society at the University of Sydney'
+    )
 
-    event1 = Event.create!(name: 'BBQ',
+    event1 = Event.create!(
+      name: 'BBQ',
     	description: 'Let\'s celebrate the beginning of the semester with some free BBQ!',
     	member_price: 0.00,
     	non_member_price: 0.00,
     	location: 'Engineering Laws',
     	start_datetime: DateTime.new(2015,9,5,12,0),
-    	end_datetime: DateTime.new(2015,9,5,13,0))
+    	end_datetime: DateTime.new(2015,9,5,13,0)
+    )
 end
 ```
 Run database migrations:
@@ -186,14 +196,16 @@ docker-compose run web rails db:migrate
 ```
 Update the event to have a user in `db/seeds.rb`:
 ```
-event1 = Event.create!(name: 'BBQ',
+event1 = Event.create!(
+  name: 'BBQ',
   description: 'Let\'s celebrate the beginning of the semester with some free BBQ!',
   member_price: 0.00,
   non_member_price: 0.00,
   location: 'Engineering Laws',
   start_datetime: DateTime.new(2015,9,5,12,0),
   end_datetime: DateTime.new(2015,9,5,13,0),
-  user: engsoc)
+  user: engsoc
+)
 ```
 Reset the database with the new seeds:
 ```
@@ -204,8 +216,101 @@ Add an association in `app/models/user.rb` to destroy the Event if the User is d
 has_many :events, dependent: :destroy
 ```
 
+## Add Factory Bot, Faker and RSpec for Testing
+Add to the `Gemfile` into the group :development, :test do:
+```
+# Testing framework
+gem 'rspec-rails'
+# Use factories to create sample instances of objects
+gem 'factory_bot_rails'
+# Use faker to generate sample data
+gem 'faker'
+```
+Update the bundle and install the gems:
+```
+docker-compose run web bundle update
+```
+Re-build the container after updating `Gemfile`:
+```
+docker-compose build
+```
+Generate the RSpec configuration:
+```
+docker-compose run web rails generate rspec:install
+```
+Ensure the correct version of RSpec is used:
+```
+docker-compose run web bundle binstubs rspec-core
+```
+Create a new folder `spec/support` containing a file `factory_bot.rb`. Add the following initialiser configuration to this file:
+```
+RSpec.configure do |config|
+  config.include FactoryBot::Syntax::Methods
+end
+```
+Our first test scenario will be validating that a User email is not nil.<br/>
+Create a new folder `spec/factories` containing a file `users.rb` containing:
+```
+FactoryBot.define do
+  factory :user do
+    username { 'John Soc' }
+    email { 'john@example.com' }
+    password { 'password' }
+    name { 'John\'s Society' }
+    role { 'organisation' }
+    description { 'Hi I\'m John and I like to Party!' }
+  end
 
+  factory :user_without_email, class: User do
+    username { 'John Soc' }
 
+    password { 'password' }
+    name { 'John\'s Society' }
+    role { 'organisation' }
+    description { 'Hi I\'m John and I like to Party!' }
+  end
+
+  factory :random_user, class: User do
+    username { Faker::Pokemon.name }
+    email { Faker::Internet.safe_email }
+    password { 'password' }
+    name { Faker::FunnyName.two_word_name }
+    role { 'organisation' }
+    description { Faker::Lorem.sentence(3) }
+  end
+end
+```
+Create a new folder `spec/features` with a file `create_user_spec.rb` containing:<br/>
+Note: I'm using feature, scenario and given syntax. However, feature is an alias for describe, background is an alias for before, scenario for it, and given/given! aliases for let/let!, respectively.
+```
+require 'rails_helper'
+require 'support/factory_bot'
+
+RSpec.feature 'User fields are validated' do
+  given(:user_without_email) { build(:user_without_email) }
+
+  scenario 'Email is not present' do
+    expect(user_without_email.save).to eq(false)
+  end
+
+  scenario 'Email is present' do
+    user_without_email.email = "john@example.com"
+    expect(user_without_email.save).to eq(true)
+  end
+end
+```
+Run RSpec and see that the first test fails and the second test passes:
+```
+docker-compose run web rspec
+```
+Now add to `app/models/user.rb` the validation to make the test pass:
+```
+validates :email, presence: true
+```
+Run RSpec again and see that both scenarios pass:
+```
+docker-compose run web rspec
+```
 
 
 ## Authors
